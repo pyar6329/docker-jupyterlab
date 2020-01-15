@@ -1,6 +1,7 @@
 # my JupyterLab Docker image
 
-JupyterLab small images
+JupyterLab minimum images
+
 This is based on [alpine-glibc](https://hub.docker.com/r/pyar6329/alpine-glibc)
 
 - Alpine Linux
@@ -23,3 +24,5 @@ $ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" pyar6329/jupy
 # or
 $ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" -w "/workspace" -u $(id -u $(whoami)):$(id -g $(whoami)) pyar6329/jupyterlab:1.0
 ```
+
+and open [http://localhost:9000](http://localhost:9000)
