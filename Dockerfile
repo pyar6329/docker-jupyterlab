@@ -46,7 +46,7 @@ RUN set -x && \
   apk del .build-dependencies && \
   find /opt -name __pycache__ | xargs rm -rf && \
   rm -rf ${MINICONDA_PATH}/pkgs/* && \
-  chown -R ${USERNAME}:${USERNAME} /opt /workspace && \
+  chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter && \
   rm -rf /root/.[apw]* Miniconda3-latest-Linux-x86_64.sh
 
 USER anaconda
