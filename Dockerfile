@@ -18,7 +18,8 @@ RUN set -x && \
   addgroup -S ${USERNAME} -g ${GROUPID} && \
   adduser -D -u ${USERID} ${USERNAME} -G ${USERNAME} && \
   mkdir /workspace && \
-  apk add --no-cache --virtual .build-dependencies ca-certificates wget bash nodejs yarn npm && \
+  apk add --no-cache nodejs && \
+  apk add --no-cache --virtual .build-dependencies ca-certificates wget bash yarn npm && \
   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
   bash Miniconda3-latest-Linux-x86_64.sh -b -p ${MINICONDA_PATH} && \
   ln -s ${MINICONDA_PATH}/bin/* /usr/local/bin/ && \
@@ -32,7 +33,10 @@ RUN set -x && \
     cupy \
     boto3 \
     psycopg2 \
+    matplotlib \
     jupyterlab && \
+  conda install -y -c conda-forge \
+    kaggle && \
   jupyter lab clean && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y \
     @jupyterlab/toc \
