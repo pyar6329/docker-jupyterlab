@@ -1,9 +1,14 @@
 FROM pyar6329/alpine-glibc:3.11
 
+# TensorFlow support version is here: https://www.tensorflow.org/install/source#common_installation_problems
+# PyTorch support version is here: https://pytorch.org/get-started/previous-versions
+# Arch Linux driver install command (Linux Kernel 5.4): sudo pacman -S linux54-nvidia-435xx nvidia-435xx-utils
 ARG MINICONDA_PATH=/opt/conda
-ARG TENSORFLOW_VERSION="2.0.0"
-ARG PYTORCH_VERSION="1.3.1"
-ARG TORCHVISION_VERSION="0.4.2"
+ARG CUDA_VERSION="10.1"
+ARG CUDNN_VERSION="7.6"
+ARG TENSORFLOW_VERSION="2.1.0"
+ARG PYTORCH_VERSION="1.4.0"
+ARG TORCHVISION_VERSION="0.5.0"
 ARG USERID=1000
 ARG GROUPID=1000
 ARG USERNAME=anaconda
@@ -12,7 +17,7 @@ ENV PATH=${MINICONDA_PATH}/bin:${PATH} \
   LD_LIBRARY_PATH=/usr/lib:/usr/lib64:${LD_LIBRARY_PATH} \
   NVIDIA_VISIBLE_DEVICES=all \
   NVIDIA_DRIVER_CAPABILITIES=utility,compute \
-  NVIDIA_REQUIRE_CUDA="cuda>=10.2 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411 brand=tesla,driver>=418,driver<419"
+  NVIDIA_REQUIRE_CUDA="cuda>=10.1 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411"
 
 RUN set -x && \
   addgroup -S ${USERNAME} -g ${GROUPID} && \
@@ -24,12 +29,16 @@ RUN set -x && \
   bash Miniconda3-latest-Linux-x86_64.sh -b -p ${MINICONDA_PATH} && \
   ln -s ${MINICONDA_PATH}/bin/* /usr/local/bin/ && \
   conda update -y --all && \
-  conda install -y \
+  conda install -y -c anaconda \
+    cudatoolkit=${CUDA_VERSION} \
+    cudnn=${CUDNN_VERSION} \
+    tensorflow-gpu=${TENSORFLOW_VERSION} && \
+  conda install -y -c pytorch \
+    pytorch=${PYTORCH_VERSION} \
+    torchvision=${TORCHVISION_VERSION} && \
+  conda install -y -c anaconda \
     scikit-learn \
     pandas \
-    tensorflow-gpu=${TENSORFLOW_VERSION} \
-    pytorch-gpu=${PYTORCH_VERSION} \
-    torchvision=${TORCHVISION_VERSION} \
     cupy \
     boto3 \
     psycopg2 \
