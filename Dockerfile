@@ -29,6 +29,7 @@ RUN set -x && \
   apt-get update && \
   apt-get install -y --no-install-recommends ca-certificates wget && \
   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+  apt-get purge --autoremove -y ca-certificates wget && \
   bash Miniconda3-latest-Linux-x86_64.sh -b -p ${MINICONDA_PATH} && \
   ln -s ${MINICONDA_PATH}/bin/* /usr/local/bin/ && \
   conda update -y --all && \
@@ -65,7 +66,6 @@ RUN set -x && \
   find ${MINICONDA_PATH} -follow -type f -name '*.a' -delete && \
   find ${MINICONDA_PATH} -follow -type f -name '*.js.map' -delete && \
   conda clean -afy && \
-  apt-get purge --autoremove -y ca-certificates wget && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
