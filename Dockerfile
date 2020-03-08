@@ -22,24 +22,62 @@ ENV PATH=${MINICONDA_PATH}/bin:${PATH} \
   NVIDIA_DRIVER_CAPABILITIES=utility,compute \
   NVIDIA_REQUIRE_CUDA="cuda>=10.1 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=396,driver<397 brand=tesla,driver>=410,driver<411"
 
+# install miniconda
 RUN set -x && \
   groupadd -r -g ${GROUPID} ${USERNAME} && \
   useradd -m -g ${USERNAME} -u ${USERID} -d /home/${USERNAME} -s /bin/bash ${USERNAME} && \
   mkdir /workspace && \
   apt-get update && \
-  apt-get install -y --no-install-recommends ca-certificates wget && \
+  apt-get install -y --no-install-recommends \
+    ca-certificates \
+    wget && \
   wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-  apt-get purge --autoremove -y ca-certificates wget && \
+  apt-get purge --autoremove -y \
+    ca-certificates \
+    wget && \
   bash Miniconda3-latest-Linux-x86_64.sh -b -p ${MINICONDA_PATH} && \
   ln -s ${MINICONDA_PATH}/bin/* /usr/local/bin/ && \
   conda update -y --all && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]* Miniconda3-latest-Linux-x86_64.sh
+
+# install CUDA, CUDNN
+RUN set -x && \
   conda install -y -c anaconda \
     cudatoolkit=${CUDA_VERSION} \
-    cudnn=${CUDNN_VERSION} \
+    cudnn=${CUDNN_VERSION} && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# install TensorFlow
+RUN set -x && \
+  conda install -y -c anaconda \
     tensorflow-gpu=${TENSORFLOW_VERSION} && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# install PyTorch
+RUN set -x && \
   conda install -y -c pytorch \
     pytorch=${PYTORCH_VERSION} \
     torchvision=${TORCHVISION_VERSION} && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# install other packages from anaconda
+RUN set -x && \
   conda install -y -c anaconda \
     git \
     scikit-learn \
@@ -49,15 +87,34 @@ RUN set -x && \
     psycopg2 \
     matplotlib \
     jupyterlab && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# install other packages from conda-forge
+RUN set -x && \
   conda install -y -c conda-forge \
     nodejs \
     jupyterlab-git \
     ipywidgets \
     python-language-server \
     kaggle && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# pip install plugins
+RUN set -x && \
   pip install --no-cache-dir \
     jupyter-lsp \
-    jupyter-tensorboard && \
+    jupyter-tensorboard
+
+# install extensions
+RUN set -x && \
   jupyter lab clean && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y \
     @jupyterlab/git \
@@ -74,14 +131,17 @@ RUN set -x && \
   npm cache clean --force && \
   rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# set jupyter configure
+RUN set -x && \
   cp -rf /root/.jupyter /home/${USERNAME}/.jupyter && \
   mkdir -p /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension /home/${USERNAME}/.lsp_symlink && \
   ln -s /home /home/${USERNAME}/.lsp_symlink/home && \
   ln -s /workspace /home/${USERNAME}/.lsp_symlink/workspace && \
   echo '{"theme": "JupyterLab Dark"}' > /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
   chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter && \
-  rm -rf /root/.[apw]* Miniconda3-latest-Linux-x86_64.sh
+  rm -rf /root/.[apw]*
 
 USER ${USERNAME}
 WORKDIR /workspace
