@@ -52,11 +52,13 @@ RUN set -x && \
   conda install -y -c conda-forge \
     nodejs \
     jupyterlab-git \
+    ipywidgets \
     kaggle && \
   jupyter lab clean && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y \
     @jupyterlab/git \
     @jupyterlab/toc \
+    @lckr/jupyterlab_variableinspector \
     jupyterlab_vim && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter serverextension enable --py jupyterlab_git && \
   mkdir -p /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension && \
