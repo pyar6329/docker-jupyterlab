@@ -67,15 +67,6 @@ RUN set -x && \
     jupyterlab_tensorboard \
     jupyterlab_vim && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter serverextension enable --py jupyterlab_git && \
-  mkdir -p /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension && \
-  mkdir -p /root/.lsp_symlink /home/${USERNAME}/.lsp_symlink && \
-  ln -s /home /root/.lsp_symlink/home && \
-  ln -s /home /home/${USERNAME}/.lsp_symlink/home && \
-  ln -s /workspace /root/.lsp_symlink/workspace && \
-  ln -s /workspace /home/${USERNAME}/.lsp_symlink/workspace && \
-  echo '{"theme": "JupyterLab Dark"}' > /root/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
-  echo '{"theme": "JupyterLab Dark"}' > /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
-  cp /root/.jupyter/jupyter_notebook_config.json /home/anaconda/.jupyter/jupyter_notebook_config.json && \
   find ${MINICONDA_PATH} -follow -type f -name '*.a' -delete && \
   find ${MINICONDA_PATH} -follow -type f -name '*.js.map' -delete && \
   conda clean -afy && \
@@ -84,6 +75,11 @@ RUN set -x && \
   rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
   rm -rf ${MINICONDA_PATH}/pkgs/* && \
+  cp -rf /root/.jupyter /home/${USERNAME}/.jupyter && \
+  mkdir -p /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension /home/${USERNAME}/.lsp_symlink && \
+  ln -s /home /home/${USERNAME}/.lsp_symlink/home && \
+  ln -s /workspace /home/${USERNAME}/.lsp_symlink/workspace && \
+  echo '{"theme": "JupyterLab Dark"}' > /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
   chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter && \
   rm -rf /root/.[apw]* Miniconda3-latest-Linux-x86_64.sh
 
