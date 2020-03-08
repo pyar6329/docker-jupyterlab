@@ -44,10 +44,19 @@ RUN set -x && \
   find /opt -name __pycache__ | xargs rm -rf && \
   rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]* Miniconda3-latest-Linux-x86_64.sh
 
-# install CUDA, CUDNN
+# install CUDA
 RUN set -x && \
   conda install -y -c anaconda \
-    cudatoolkit=${CUDA_VERSION} \
+    cudatoolkit=${CUDA_VERSION} && \
+  conda clean -afy && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+
+# install CUDNN
+RUN set -x && \
+  conda install -y -c anaconda \
     cudnn=${CUDNN_VERSION} && \
   conda clean -afy && \
   apt-get clean && \
@@ -140,8 +149,7 @@ RUN set -x && \
   ln -s /home /home/${USERNAME}/.lsp_symlink/home && \
   ln -s /workspace /home/${USERNAME}/.lsp_symlink/workspace && \
   echo '{"theme": "JupyterLab Dark"}' > /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
-  chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter && \
-  rm -rf /root/.[apw]*
+  chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter
 
 USER ${USERNAME}
 WORKDIR /workspace
