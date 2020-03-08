@@ -23,19 +23,19 @@ JupyterLab minimum images
 ### Docker Hub
 
 ```bash
-$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" pyar6329/jupyterlab:10.1.3
+$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" pyar6329/jupyterlab:10.1.4
 
 # or
-$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" -w "/workspace" -u $(id -u $(whoami)):$(id -g $(whoami)) pyar6329/jupyterlab:10.1.3
+$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" -w "/workspace" -u $(id -u $(whoami)):$(id -g $(whoami)) pyar6329/jupyterlab:10.1.4
 ```
 
 ### GitHub Package
 
 ```bash
-$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" docker.pkg.github.com/pyar6329/docker-jupyterlab/jupyterlab:10.1.3
+$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" docker.pkg.github.com/pyar6329/docker-jupyterlab/jupyterlab:10.1.4
 
 # or
-$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" -w "/workspace" -u $(id -u $(whoami)):$(id -g $(whoami)) docker.pkg.github.com/pyar6329/docker-jupyterlab/jupyterlab:10.1.3
+$ docker run --rm --gpus all -p "9000:9000" -v "$(pwd):/workspace" -w "/workspace" -u $(id -u $(whoami)):$(id -g $(whoami)) docker.pkg.github.com/pyar6329/docker-jupyterlab/jupyterlab:10.1.4
 ```
 
 and open [http://localhost:9000](http://localhost:9000)
