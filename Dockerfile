@@ -36,43 +36,43 @@ RUN set -x && \
     ca-certificates \
     wget && \
   bash Miniconda3-latest-Linux-x86_64.sh -b -p ${MINICONDA_PATH} && \
-  ln -s ${MINICONDA_PATH}/bin/* /usr/local/bin/ && \
   conda update -y --all && \
   conda clean -afy && \
   apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
+  cp -rf /root/.[cjl]* /home/${USERNAME} && \
+  mkdir -p /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension /home/${USERNAME}/.lsp_symlink && \
+  echo '{"theme": "JupyterLab Dark"}' > /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
+  ln -s /home /home/${USERNAME}/.lsp_symlink/home && \
+  ln -s /workspace /home/${USERNAME}/.lsp_symlink/workspace && \
+  chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]* Miniconda3-latest-Linux-x86_64.sh
+  rm -rf /var/lib/apt/lists/* ${MINICONDA_PATH}/pkgs/* /root/.[apwcjl]* Miniconda3-latest-Linux-x86_64.sh
+
+USER ${USERNAME}
 
 # install CUDA
 RUN set -x && \
   conda install -y -c anaconda \
     cudatoolkit=${CUDA_VERSION} && \
   conda clean -afy && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/* /home/${USERNAME}/.[apw]*
 
 # install CUDNN
 RUN set -x && \
   conda install -y -c anaconda \
     cudnn=${CUDNN_VERSION} && \
   conda clean -afy && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/*
 
 # install TensorFlow
 RUN set -x && \
   conda install -y -c anaconda \
     tensorflow-gpu=${TENSORFLOW_VERSION} && \
   conda clean -afy && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/*
 
 # install PyTorch
 RUN set -x && \
@@ -80,10 +80,8 @@ RUN set -x && \
     pytorch=${PYTORCH_VERSION} \
     torchvision=${TORCHVISION_VERSION} && \
   conda clean -afy && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/*
 
 # install other packages from anaconda
 RUN set -x && \
@@ -97,10 +95,8 @@ RUN set -x && \
     matplotlib \
     jupyterlab && \
   conda clean -afy && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/*
 
 # install other packages from conda-forge
 RUN set -x && \
@@ -111,10 +107,8 @@ RUN set -x && \
     python-language-server \
     kaggle && \
   conda clean -afy && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/*
 
 # pip install plugins
 RUN set -x && \
@@ -125,33 +119,20 @@ RUN set -x && \
 # install extensions
 RUN set -x && \
   jupyter lab clean && \
-  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y \
-    @jupyterlab/git \
-    @jupyterlab/toc \
-    @lckr/jupyterlab_variableinspector \
-    @krassowski/jupyterlab-lsp \
-    jupyterlab_tensorboard \
-    jupyterlab_vim && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @jupyterlab/git && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @jupyterlab/toc && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @lckr/jupyterlab_variableinspector && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @krassowski/jupyterlab-lsp && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y jupyterlab_tensorboard && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y jupyterlab_vim && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter serverextension enable --py jupyterlab_git && \
   find ${MINICONDA_PATH} -follow -type f -name '*.a' -delete && \
   find ${MINICONDA_PATH} -follow -type f -name '*.js.map' -delete && \
   conda clean -afy && \
-  apt-get clean && \
   npm cache clean --force && \
-  rm -rf /var/lib/apt/lists/* && \
   find /opt -name __pycache__ | xargs rm -rf && \
-  rm -rf ${MINICONDA_PATH}/pkgs/* /root/.[apw]*
+  rm -rf ${MINICONDA_PATH}/pkgs/*
 
-# set jupyter configure
-RUN set -x && \
-  cp -rf /root/.jupyter /home/${USERNAME}/.jupyter && \
-  mkdir -p /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension /home/${USERNAME}/.lsp_symlink && \
-  ln -s /home /home/${USERNAME}/.lsp_symlink/home && \
-  ln -s /workspace /home/${USERNAME}/.lsp_symlink/workspace && \
-  echo '{"theme": "JupyterLab Dark"}' > /home/${USERNAME}/.jupyter/lab/user-settings/@jupyterlab/apputils-extension/themes.jupyterlab-settings && \
-  chown -R ${USERNAME}:${USERNAME} /opt /workspace /home/${USERNAME}/.jupyter
-
-USER ${USERNAME}
 WORKDIR /workspace
 EXPOSE 9000
 
