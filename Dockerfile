@@ -121,7 +121,6 @@ RUN set -x && \
   jupyter lab clean && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @jupyterlab/git && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @jupyterlab/toc && \
-  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @lckr/jupyterlab_variableinspector && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @krassowski/jupyterlab-lsp && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y jupyterlab_tensorboard && \
   NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y jupyterlab_vim && \
