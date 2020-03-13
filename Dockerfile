@@ -85,7 +85,7 @@ RUN set -x && \
 
 # install other packages from conda-forge
 RUN set -x && \
-  conda install -y -c conda-forge \
+  conda install -y --freeze-installed -c conda-forge \
     git \
     pandas \
     cupy \
@@ -94,7 +94,7 @@ RUN set -x && \
     nodejs \
     scikit-learn \
     matplotlib \
-    jupyterlab \
+    jupyterlab="1.2.7" \
     ipywidgets \
     python-language-server \
     kaggle && \
@@ -105,15 +105,10 @@ RUN set -x && \
 # pip install plugins
 RUN set -x && \
   pip install --no-cache-dir \
-    jupyter-lsp
-
-# install extensions
-RUN set -x && \
-  jupyter lab clean && \
-  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @jupyterlab/toc && \
-  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @lckr/jupyterlab_variableinspector && \
-  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @krassowski/jupyterlab-lsp && \
-  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @axlair/jupyterlab_vim && \
+    jupyter-lsp==0.8.0 \
+    jupyter-tensorboard \
+    jupyterlab-git && \
+  jupyter lab build --dev-build=False --minimize=True && \
   find ${MINICONDA_PATH} -follow -type f -name '*.a' -delete && \
   find ${MINICONDA_PATH} -follow -type f -name '*.js.map' -delete && \
   jupyter lab clean && \
@@ -123,7 +118,28 @@ RUN set -x && \
   find /opt -name __pycache__ | xargs rm -rf && \
   rm -rf ${MINICONDA_PATH}/pkgs/* $HOME/.node-gyp
 
+# install extensions
+RUN set -x && \
+  jupyter lab clean && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y nbdime-jupyterlab@1.0.0 && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @jupyterlab/toc && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @lckr/jupyterlab_variableinspector && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y @krassowski/jupyterlab-lsp@0.8.0 && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y jupyterlab_tensorboard && \
+  NODE_OPTIONS="--max_old_space_size=2048" jupyter labextension install -y jupyterlab_vim && \
+  find ${MINICONDA_PATH} -follow -type f -name '*.a' -delete && \
+  find ${MINICONDA_PATH} -follow -type f -name '*.js.map' -delete && \
+  jupyter lab clean && \
+  jlpm cache clean && \
+  npm cache clean --force && \
+  conda clean -afy && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/* $HOME/.node-gyp $HOME/.cache/yarn
+
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
 WORKDIR /workspace
 EXPOSE 9000
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/opt/conda/bin/jupyter-lab", "--no-browser", "--port=9000", "--ip=0.0.0.0", "--allow-root", "--NotebookApp.token=''"]
