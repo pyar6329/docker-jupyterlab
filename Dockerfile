@@ -95,6 +95,7 @@ RUN set -x && \
     scikit-learn \
     matplotlib \
     jupyterlab="1.2.7" \
+    jupyterlab-git \
     ipywidgets \
     python-language-server \
     kaggle && \
