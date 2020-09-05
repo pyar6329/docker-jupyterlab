@@ -111,7 +111,6 @@ RUN set -x && \
     ujson=${UJSON_VERSION} \
     jedi=${JEDI_VERSION} \
     parso=${PARSO_VERSION} \
-    fbprophet \
     kaggle && \
   conda clean -afy && \
   find /opt -name __pycache__ | xargs rm -rf && \
