@@ -112,7 +112,6 @@ RUN set -x && \
     jedi=${JEDI_VERSION} \
     parso=${PARSO_VERSION} \
     fbprophet \
-    gcc \
     kaggle && \
   conda clean -afy && \
   find /opt -name __pycache__ | xargs rm -rf && \
