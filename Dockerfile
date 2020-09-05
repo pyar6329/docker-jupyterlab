@@ -5,20 +5,20 @@ FROM ubuntu:18.04
 # Arch Linux driver install command (Linux Kernel 5.4): sudo pacman -S linux54-nvidia-435xx nvidia-435xx-utils
 ARG CUDA_VERSION="10.1"
 ARG CUDNN_VERSION="7.6"
-ARG TENSORFLOW_VERSION="2.1"
-ARG PYTORCH_VERSION="1.4"
-ARG TORCHVISION_VERSION="0.5"
-ARG JUPYTERLAB_VERSION="2.0"
+ARG TENSORFLOW_VERSION="2.2"
+ARG PYTORCH_VERSION="1.6"
+ARG TORCHVISION_VERSION="0.7"
+ARG JUPYTERLAB_VERSION="2.2.6"
 
 # about jupyterlab-lsp version
 # see: ujson, jedi: https://github.com/palantir/python-language-server/blob/develop/setup.py#L34-L42
-# see: parso: https://github.com/davidhalter/jedi/blob/master/requirements.txt
-ARG JUPYTERLAB_LSP_CLIENT_VERSION="1.0.0"
-ARG JUPYTERLAB_LSP_SERVER_VERSION="0.8.0"
-ARG PYTHON_LANGUAGE_SERVER_VERSION="0.31"
+# see: parso: https://github.com/davidhalter/jedi/blob/master/setup.py#L35
+ARG JUPYTERLAB_LSP_CLIENT_VERSION="2.0.0"
+ARG JUPYTERLAB_LSP_SERVER_VERSION="0.9.2"
+ARG PYTHON_LANGUAGE_SERVER_VERSION="0.34.1"
 ARG UJSON_VERSION="1.35"
-ARG JEDI_VERSION="0.15"
-ARG PARSO_VERSION="0.5.2"
+ARG JEDI_VERSION="0.17"
+ARG PARSO_VERSION="0.8.0"
 
 ARG MINICONDA_PATH=/opt/conda
 ARG USERID=1000
@@ -111,6 +111,8 @@ RUN set -x && \
     ujson=${UJSON_VERSION} \
     jedi=${JEDI_VERSION} \
     parso=${PARSO_VERSION} \
+    fbprophet \
+    gcc \
     kaggle && \
   conda clean -afy && \
   find /opt -name __pycache__ | xargs rm -rf && \
@@ -119,6 +121,8 @@ RUN set -x && \
 # pip install plugins
 RUN set -x && \
   pip install --no-cache-dir \
+    akapriori \
+    turicreate \
     jupyter-lsp==${JUPYTERLAB_LSP_SERVER_VERSION}
 
 # install extensions
