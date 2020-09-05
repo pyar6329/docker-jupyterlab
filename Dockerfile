@@ -8,6 +8,7 @@ ARG CUDNN_VERSION="7.6"
 ARG TENSORFLOW_VERSION="2.2"
 ARG PYTORCH_VERSION="1.6"
 ARG TORCHVISION_VERSION="0.7"
+ARG SPOTLIGHT_VERSION="0.1.6"
 ARG JUPYTERLAB_VERSION="2.2.6"
 
 # about jupyterlab-lsp version
@@ -95,10 +96,22 @@ RUN set -x && \
   find /opt -name __pycache__ | xargs rm -rf && \
   rm -rf ${MINICONDA_PATH}/pkgs/*
 
+# install Recommender Systems using PyTorch
+RUN set -x && \
+  conda install -y -c conda-forge \
+    git && \
+  cd $HOME && \
+  git clone https://github.com/maciejkula/spotlight.git -b "v${SPOTLIGHT_VERSION}" && \
+  cd spotlight && \
+  python setup.py build && \
+  python setup.py install && \
+  conda clean -afy && \
+  find /opt -name __pycache__ | xargs rm -rf && \
+  rm -rf ${MINICONDA_PATH}/pkgs/*
+
 # install other packages from conda-forge
 RUN set -x && \
   conda install -y -c conda-forge \
-    git \
     pandas \
     cupy \
     psycopg2 \
@@ -110,11 +123,41 @@ RUN set -x && \
     ujson=${UJSON_VERSION} \
     jedi=${JEDI_VERSION} \
     parso=${PARSO_VERSION} \
-    fbprophet \
     kaggle && \
   conda clean -afy && \
   find /opt -name __pycache__ | xargs rm -rf && \
   rm -rf ${MINICONDA_PATH}/pkgs/*
+
+USER root
+
+# Prophet install
+RUN set -x && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    g++ && \
+  curl -o /usr/local/bin/su-exec.c "https://raw.githubusercontent.com/ncopa/su-exec/master/su-exec.c" && \
+  gcc -Wall /usr/local/bin/su-exec.c -o /usr/local/bin/su-exec && \
+  chown root:root /usr/local/bin/su-exec && \
+  chmod 0755 /usr/local/bin/su-exec && \
+  rm /usr/local/bin/su-exec.c && \
+  su-exec ${USERNAME} pip install --no-cache-dir \
+    convertdate \
+    lunarcalendar \
+    holidays \
+    pystan && \
+  su-exec ${USERNAME} pip install --no-cache-dir \
+    fbprophet && \
+  rm -rf /usr/local/bin/su-exec && \
+  apt-get purge --autoremove -y \
+    ca-certificates \
+    curl \
+    g++ && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
+USER ${USERNAME}
 
 # pip install plugins
 RUN set -x && \
